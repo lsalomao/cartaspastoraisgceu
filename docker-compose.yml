@@ -4,24 +4,28 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.prod
     expose:
       - "5001"
     volumes:
-      - .:/app
+      - ./webapp/data:/app/webapp/data
+      - ./webapp/static:/app/webapp/static
     environment:
       - FLASK_APP=app.py
-      - FLASK_ENV=development
-      - PRODUCTION=False
+      - FLASK_ENV=production
+      - PRODUCTION=True
       - PYTHONUNBUFFERED=1
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "5001:80"
-    volumes:
-      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
-      - ./webapp/static:/app/webapp/static
-    depends_on:
-      - web
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
