@@ -1,0 +1,41 @@
+# Use uma imagem base do Python com tag específica
+FROM python:3.9.18-slim-bullseye
+
+# Configurar mirrors do apt e timeouts do pip
+RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
+
+# Instalar as dependências do sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    gnupg \
+    unzip \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia os arquivos de requisitos
+COPY requirements.txt .
+
+# Configurar pip para usar mirrors alternativos e aumentar timeout
+RUN pip config set global.timeout 1000 && \
+    pip config set global.index-url https://pypi.org/simple/ && \
+    pip config set global.extra-index-url https://pypi.tuna.tsinghua.edu.cn/simple/ && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copia o código fonte
+COPY . .
+
+# Expõe a porta 5001
+EXPOSE 5001
+
+# Define variáveis de ambiente para desenvolvimento
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=development
+ENV PYTHONUNBUFFERED=1
+
+# Comando para executar a aplicação com hot-reload
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5001"] 

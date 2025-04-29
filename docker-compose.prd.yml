@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    expose:
+      - "5001"
+    volumes:
+      - ./webapp/data:/app/webapp/data
+      - ./webapp/static:/app/webapp/static
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - PRODUCTION=True
+      - PYTHONUNBUFFERED=1
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "5001:80"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./webapp/static:/app/webapp/static
+    depends_on:
+      - web
+    command: sh -c "chown -R nginx:nginx /app/webapp/static && nginx -g 'daemon off;'"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

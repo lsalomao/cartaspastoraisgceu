@@ -1,0 +1,164 @@
+:root {
+    --primary-color: #4a6da7;
+    --secondary-color: #6c757d;
+    --accent-color: #3a5795;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+.sidebar {
+    background-color: white;
+    border-right: 1px solid #e0e0e0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.main-content {
+    padding-top: 20px;
+}
+
+.header {
+    margin-bottom: 30px;
+}
+
+h1, h2, h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.stats-box {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* Estilos para os cards */
+.devotional-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+}
+
+.devotional-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px;
+    border-bottom: none;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.card-subtitle {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 0.9rem;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.topicos-list {
+    padding-left: 20px;
+    margin-top: 5px;
+    max-height: 130px;
+    overflow-y: auto;
+}
+
+.topicos-list li {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 12px 20px;
+}
+
+.card-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.card-link:hover {
+    text-decoration: underline;
+}
+
+/* Botões de filtro */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+    .sidebar {
+        height: auto;
+        position: relative;
+        margin-bottom: 20px;
+    }
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Animação para carregamento de conteúdo */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.devotional-card {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+#infoAlert {
+    animation: fadeIn 0.3s ease-out forwards;
+    background-color: #e7f3fe;
+    border-color: #cce5ff;
+    color: #004085;
+} 

@@ -1,0 +1,69 @@
+# Stage 1: Build
+FROM python:3.9.18-slim-bullseye as builder
+
+# Configurar mirrors do apt e timeouts do pip
+RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
+
+# Instalar dependências de compilação
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Criar e ativar ambiente virtual
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Configurar pip
+RUN pip config set global.timeout 1000 && \
+    pip config set global.index-url https://pypi.org/simple/ && \
+    pip config set global.extra-index-url https://pypi.tuna.tsinghua.edu.cn/simple/
+
+# Copiar e instalar requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Runtime
+FROM python:3.9.18-slim-bullseye
+
+# Configurar mirrors do apt
+RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99custom
+
+# Copiar ambiente virtual do builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Instalar dependências mínimas necessárias
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Criar usuário não-root
+RUN useradd -m appuser && \
+    mkdir -p /app && \
+    chown appuser:appuser /app
+
+# Mudar para usuário não-root
+USER appuser
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Copiar aplicação
+COPY --chown=appuser:appuser . .
+
+# Configurar variáveis de ambiente
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=production
+ENV PRODUCTION=True
+ENV PYTHONUNBUFFERED=1
+
+# Expor porta
+EXPOSE 5000
+
+# Comando para iniciar a aplicação
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--threads", "2", "app:app"] 
